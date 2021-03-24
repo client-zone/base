@@ -65,6 +65,10 @@ function createRetryableFetch (fetch, defaultOptions) {
 }
 
 class ApiClientBase {
+  /**
+  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
+  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
+  */
   constructor (baseUrl, options = {}) {
     options = Object.assign({
       retryAfter: [],
@@ -78,7 +82,10 @@ class ApiClientBase {
     });
   }
 
-  validateFetch () {}
+  /**
+  Called just before the fetch is made. Override.
+   */
+  preFetch (url, fetchOptions) {}
 
   async authorise (accessToken) {
     if (accessToken) {
@@ -86,15 +93,17 @@ class ApiClientBase {
     }
   }
 
+  /** ▪︎ api.fetch ⇐ :Response
+  The core fetch method. Throws on error, 400 or 500.
+  */
   async fetch (path, options = {}) {
-    this.validateFetch();
     const fetchOptions = Object.assign({}, {
       headers: {}
     }, options);
     if (this.accessToken) {
       fetchOptions.headers.Authorization = `Bearer ${this.accessToken}`;
     }
-    // console.log(`${this.baseUrl}${path}`, fetchOptions)
+    this.preFetch(`${this.baseUrl}${path}`, fetchOptions);
     const response = await this._fetch(`${this.baseUrl}${path}`, fetchOptions);
     if (response.ok) {
       return response
@@ -102,6 +111,7 @@ class ApiClientBase {
       const err = new Error(`${response.status}: ${response.statusText}`);
       err.name = response.status;
       err.response = response;
+      throw err
     }
   }
 

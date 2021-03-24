@@ -11,7 +11,8 @@
   },
   "scripts": {
     "test": "test-runner test/*.mjs",
-    "dist": "rollup -c"
+    "dist": "rollup -c",
+    "watch": "rollup -cw"
   },
   "files": [
     "index.mjs"
