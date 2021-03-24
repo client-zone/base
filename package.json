@@ -1,0 +1,25 @@
+{
+  "name": "api-client-base",
+  "author": "Lloyd Brookes <75pound@gmail.com>",
+  "version": "0.0.0",
+  "description": "api-client-base",
+  "repository": "https://github.com/75lb/api-client-base",
+  "keywords": [],
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "test": "test-runner test/*.mjs",
+    "dist": "rollup -c"
+  },
+  "files": [
+    "index.mjs"
+  ],
+  "dependencies": {
+    "retryable-fetch": "^0.1.1"
+  },
+  "devDependencies": {
+    "rollup-plugin-node-resolve": "^5.2.0"
+  }
+}
