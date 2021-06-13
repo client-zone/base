@@ -8,13 +8,15 @@ class ApiClientBase {
   constructor (options = {}) {
     options = Object.assign({
       retryAfter: [],
-      fetch: undefined
+      fetch: undefined,
+      log: undefined
     }, options)
 
     this.baseUrl = options.baseUrl || ''
     const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
     this._fetch = retryableFetch(_fetch, {
-      retryAfter: options.retryAfter
+      retryAfter: options.retryAfter,
+      log: options.log || function () {}
     })
   }
 
@@ -24,7 +26,7 @@ class ApiClientBase {
   preFetch (url, fetchOptions) {}
 
   /**
-  ≈ Set or fetch an accessToken.
+  ≈ Set or fetch an accessToken. Maybe REMOVE this as Github v3 API, v4 graphql API and IG all authorise differently.
   */
   async authorise (accessToken) {
     if (accessToken) {
@@ -43,8 +45,12 @@ class ApiClientBase {
     }, options)
 
     /* Apply accessToken */
-    if (this.accessToken) {
-      fetchOptions.headers.Authorization = `Bearer ${this.accessToken}`
+    if (this.accessToken && !fetchOptions.headers.authorization) {
+      /*
+      TODO: pass in whole header value instead of accessTOken to enable values like:
+      'Basic ' + encodeBase64(`75lb:code`)
+      */
+      fetchOptions.headers.authorization = `Bearer ${this.accessToken}`
     }
     const url = `${this.baseUrl}${path}`
     this.preFetch(url, fetchOptions)

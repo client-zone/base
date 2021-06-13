@@ -11,7 +11,7 @@
   },
   "exports": "./index.mjs",
   "scripts": {
-    "test": "test-runner test.mjs",
+    "test": "npm run dist && test-runner test.mjs",
     "dist": "rollup -c",
     "watch": "rollup -cw"
   },

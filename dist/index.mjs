@@ -21,11 +21,16 @@ function sleep (ms, returnValue) {
   return new Promise(resolve => setTimeout(() => resolve(returnValue), ms))
 }
 
-function createRetryableFetch (fetch, defaultOptions) {
-  defaultOptions = Object.assign({
+/**
+≈ Returns a function wrapping the supplied fetch function, adding retry functionality.
+• fetch :function - The fetch function to wrap
+• [options]
+*/
+function createRetryableFetch (fetch, options) {
+  const defaultOptions = Object.assign({
     retryAfter: [],
     log: function () {}
-  }, defaultOptions);
+  }, options);
   return function retryableFetch (url, options) {
     options = Object.assign({}, defaultOptions, options);
     const retryAfter = options.retryAfter.slice();
@@ -33,7 +38,7 @@ function createRetryableFetch (fetch, defaultOptions) {
       let complete = false;
       while (!complete) {
         try {
-          options.log('FETCH:', url, options);
+          options.log('FETCH:', url);
           const response = await fetch(url, options);
           if (response.ok) {
             options.log('RES:', response.url, { status: response.status, statusText: response.statusText });
@@ -66,28 +71,32 @@ function createRetryableFetch (fetch, defaultOptions) {
 
 class ApiClientBase {
   /**
-  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
-  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
+  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
+  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
   */
-  constructor (baseUrl, options = {}) {
+  constructor (options = {}) {
     options = Object.assign({
       retryAfter: [],
-      fetch: undefined
+      fetch: undefined,
+      log: undefined
     }, options);
 
-    this.baseUrl = baseUrl;
+    this.baseUrl = options.baseUrl || '';
     const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window);
     this._fetch = createRetryableFetch(_fetch, {
       retryAfter: options.retryAfter,
-      // log: console.log
+      log: options.log || function () {}
     });
   }
 
   /**
-  Called just before the fetch is made. Override.
+  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients like IG which set bespoke security headers.
    */
   preFetch (url, fetchOptions) {}
 
+  /**
+  ≈ Set or fetch an accessToken. Maybe REMOVE this as Github v3 API, v4 graphql API and IG all authorise differently.
+  */
   async authorise (accessToken) {
     if (accessToken) {
       this.accessToken = accessToken;
@@ -101,11 +110,18 @@ class ApiClientBase {
     const fetchOptions = Object.assign({}, {
       headers: {}
     }, options);
-    if (this.accessToken) {
-      fetchOptions.headers.Authorization = `Bearer ${this.accessToken}`;
+
+    /* Apply accessToken */
+    if (this.accessToken && !fetchOptions.headers.authorization) {
+      /*
+      TODO: pass in whole header value instead of accessTOken to enable values like:
+      'Basic ' + encodeBase64(`75lb:code`)
+      */
+      fetchOptions.headers.authorization = `Bearer ${this.accessToken}`;
     }
-    this.preFetch(`${this.baseUrl}${path}`, fetchOptions);
-    const response = await this._fetch(`${this.baseUrl}${path}`, fetchOptions);
+    const url = `${this.baseUrl}${path}`;
+    this.preFetch(url, fetchOptions);
+    const response = await this._fetch(url, fetchOptions);
     if (response.ok) {
       return response
     } else {
