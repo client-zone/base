@@ -8,13 +8,19 @@ const Tom = TestRunner.Tom
 const tom = new Tom({ maxConcurrency: 2 })
 
 tom.test('fetchJson', async function () {
-  const api = new ApiClientBase('https://registry.npmjs.org', { fetch })
+  const api = new ApiClientBase({ fetch })
+  const result = await api.fetchJson('https://registry.npmjs.org/')
+  a.equal(result.db_name, 'registry')
+})
+
+tom.test('fetchJson: baseUrl', async function () {
+  const api = new ApiClientBase({ fetch, baseUrl: 'https://registry.npmjs.org' })
   const result = await api.fetchJson('/')
   a.equal(result.db_name, 'registry')
 })
 
 tom.test('fetchJson fail', async function () {
-  const api = new ApiClientBase('https://registry.npmjs.orgBROKEN', { fetch })
+  const api = new ApiClientBase({ fetch, baseUrl: 'https://registry.npmjs.orgBROKEN' })
   try {
     await api.fetchJson('/')
     throw new Error('should not reach here')
@@ -24,7 +30,7 @@ tom.test('fetchJson fail', async function () {
 })
 
 tom.test('fetchJson fail, retry', async function () {
-  const api = new ApiClientBase('https://registry.npmjs.orgBROKEN', { fetch })
+  const api = new ApiClientBase({ fetch, baseUrl: 'https://registry.npmjs.orgBROKEN' })
   // TODO: test api.log is called as expected by re-fetch
   try {
     await api.fetchJson('/', { retryAfter: [500, 500], fetch })

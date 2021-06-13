@@ -5,13 +5,13 @@ class ApiClientBase {
   • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
   • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
   */
-  constructor (baseUrl, options = {}) {
+  constructor (options = {}) {
     options = Object.assign({
       retryAfter: [],
       fetch: undefined
     }, options)
 
-    this.baseUrl = baseUrl
+    this.baseUrl = options.baseUrl || ''
     const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
     this._fetch = retryableFetch(_fetch, {
       retryAfter: options.retryAfter
