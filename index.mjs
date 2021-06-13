@@ -1,9 +1,9 @@
-import retryableFetch from 'retryable-fetch/index.mjs'
+import retryableFetch from 'retryable-fetch'
 
 class ApiClientBase {
   /**
-  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
-  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
+  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
+  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
   */
   constructor (baseUrl, options = {}) {
     options = Object.assign({
@@ -19,10 +19,13 @@ class ApiClientBase {
   }
 
   /**
-  Called just before the fetch is made. Override.
+  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients like IG which set bespoke security headers.
    */
   preFetch (url, fetchOptions) {}
 
+  /**
+  ≈ Set or fetch an accessToken.
+  */
   async authorise (accessToken) {
     if (accessToken) {
       this.accessToken = accessToken
@@ -38,11 +41,14 @@ class ApiClientBase {
     const fetchOptions = Object.assign({}, {
       headers: {}
     }, options)
+
+    /* Apply accessToken */
     if (this.accessToken) {
       fetchOptions.headers.Authorization = `Bearer ${this.accessToken}`
     }
-    this.preFetch(`${this.baseUrl}${path}`, fetchOptions)
-    const response = await this._fetch(`${this.baseUrl}${path}`, fetchOptions)
+    const url = `${this.baseUrl}${path}`
+    this.preFetch(url, fetchOptions)
+    const response = await this._fetch(url, fetchOptions)
     if (response.ok) {
       return response
     } else {

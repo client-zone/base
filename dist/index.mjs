@@ -33,7 +33,7 @@ function createRetryableFetch (fetch, defaultOptions) {
       let complete = false;
       while (!complete) {
         try {
-          options.log('FETCH:', url);
+          options.log('FETCH:', url, options);
           const response = await fetch(url, options);
           if (response.ok) {
             options.log('RES:', response.url, { status: response.status, statusText: response.statusText });
@@ -78,7 +78,8 @@ class ApiClientBase {
     this.baseUrl = baseUrl;
     const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window);
     this._fetch = createRetryableFetch(_fetch, {
-      retryAfter: options.retryAfter
+      retryAfter: options.retryAfter,
+      // log: console.log
     });
   }
 
