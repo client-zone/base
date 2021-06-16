@@ -4,6 +4,7 @@ class ApiClientBase {
   /**
   • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
   • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
+  • [options.log] :function - Function to display log messages
   */
   constructor (options = {}) {
     options = Object.assign({
@@ -25,17 +26,6 @@ class ApiClientBase {
    */
   preFetch (url, fetchOptions) {}
 
-  /**
-  ≈ Set or fetch an accessToken. Maybe REMOVE this as Github v3 API, v4 graphql API and IG all authorise differently.
-  */
-  async authorise (accessToken) {
-    if (accessToken) {
-      this.accessToken = accessToken
-    } else {
-      /* OAUTH */
-    }
-  }
-
   /** ▪︎ api.fetch ⇐ :Response
   The core fetch method. Throws on error, 400 or 500.
   */
@@ -44,14 +34,6 @@ class ApiClientBase {
       headers: {}
     }, options)
 
-    /* Apply accessToken */
-    if (this.accessToken && !fetchOptions.headers.authorization) {
-      /*
-      TODO: pass in whole header value instead of accessTOken to enable values like:
-      'Basic ' + encodeBase64(`75lb:code`)
-      */
-      fetchOptions.headers.authorization = `Bearer ${this.accessToken}`
-    }
     const url = `${this.baseUrl}${path}`
     this.preFetch(url, fetchOptions)
     const response = await this._fetch(url, fetchOptions)
@@ -73,14 +55,6 @@ class ApiClientBase {
   async fetchText (path, options) {
     const response = await this.fetch(path, options)
     return response.text()
-  }
-}
-
-function encodeBase64 (input) {
-  if (typeof btoa === 'undefined') {
-    return Buffer.from(input).toString('base64')
-  } else {
-    return btoa(input)
   }
 }
 

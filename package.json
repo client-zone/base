@@ -19,11 +19,17 @@
     "index.mjs"
   ],
   "dependencies": {
-    "retryable-fetch": "^0.2.0"
+    "retryable-fetch": "^0.2.1"
   },
   "devDependencies": {
     "node-fetch": "^2.6.1",
     "rollup-plugin-node-resolve": "^5.2.0",
     "test-runner": "^0.9.2"
+  },
+  "standard": {
+    "ignore": [
+      "tmp"
+    ],
+    "envs": []
   }
 }
