@@ -30,38 +30,38 @@ function createRetryableFetch (fetch, options) {
   const defaultOptions = Object.assign({
     retryAfter: [],
     log: function () {}
-  }, options)
+  }, options);
   return function retryableFetch (url, options) {
-    options = Object.assign({}, defaultOptions, options)
-    const retryAfter = options.retryAfter.slice()
+    options = Object.assign({}, defaultOptions, options);
+    const retryAfter = options.retryAfter.slice();
     return new Promise(async (resolve, reject) => {
-      let complete = false
+      let complete = false;
       while (!complete) {
         try {
-          options.log(`FETCH: ${url}`)
-          const response = await fetch(url, options)
+          options.log(`FETCH: ${url}`);
+          const response = await fetch(url, options);
           if (response.ok) {
-            options.log(`RES: ${response.url} ${{ status: response.status, statusText: response.statusText }}`)
-            resolve(response)
-            complete = true
+            options.log(`RES: ${response.url} ${{ status: response.status, statusText: response.statusText }}`);
+            resolve(response);
+            complete = true;
           } else {
-            const text = await response.text()
-            options.log(`RES: ${response.url}, ${{ status: response.status, statusText: response.statusText, text }}`)
-            const err = new Error('fetch failed: ' + response.status + '\n' + text)
-            err.status = response.status
-            err.responseBody = text
+            const text = await response.text();
+            options.log(`RES: ${response.url}, ${{ status: response.status, statusText: response.statusText, text }}`);
+            const err = new Error('fetch failed: ' + response.status + '\n' + text);
+            err.status = response.status;
+            err.responseBody = text;
             throw err
           }
         } catch (err) {
-          const remainingRetries = retryAfter.length
+          const remainingRetries = retryAfter.length;
           if (remainingRetries) {
-            const waitPeriod = retryAfter.shift()
-            options.log(`RETRY: ${url}, ${remainingRetries} attempts remaining, waiting ${waitPeriod}ms.`)
-            await sleep(waitPeriod)
-            complete = false
+            const waitPeriod = retryAfter.shift();
+            options.log(`RETRY: ${url}, ${remainingRetries} attempts remaining, waiting ${waitPeriod}ms.`);
+            await sleep(waitPeriod);
+            complete = false;
           } else {
-            complete = true
-            reject(err)
+            complete = true;
+            reject(err);
           }
         }
       }
@@ -80,14 +80,15 @@ class ApiClientBase {
       retryAfter: [],
       fetch: undefined,
       log: undefined
-    }, options)
+    }, options);
 
-    this.baseUrl = options.baseUrl || ''
-    const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
+    this.options = options;
+    this.baseUrl = options.baseUrl || '';
+    const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window);
     this._fetch = createRetryableFetch(_fetch, {
       retryAfter: options.retryAfter,
       log: options.log || function () {}
-    })
+    });
   }
 
   /**
@@ -101,30 +102,30 @@ class ApiClientBase {
   async fetch (path, options = {}) {
     const fetchOptions = Object.assign({}, {
       headers: {}
-    }, options)
+    }, options);
 
-    const url = `${this.baseUrl}${path}`
-    this.preFetch(url, fetchOptions)
-    const response = await this._fetch(url, fetchOptions)
+    const url = `${this.baseUrl}${path}`;
+    this.preFetch(url, fetchOptions);
+    const response = await this._fetch(url, fetchOptions);
     if (response.ok) {
       return response
     } else {
-      const err = new Error(`${response.status}: ${response.statusText}`)
-      err.name = response.status
-      err.response = response
+      const err = new Error(`${response.status}: ${response.statusText}`);
+      err.name = response.status;
+      err.response = response;
       throw err
     }
   }
 
   async fetchJson (path, options) {
-    const response = await this.fetch(path, options)
+    const response = await this.fetch(path, options);
     return response.json()
   }
 
   async fetchText (path, options) {
-    const response = await this.fetch(path, options)
+    const response = await this.fetch(path, options);
     return response.text()
   }
 }
 
-export default ApiClientBase
+export default ApiClientBase;

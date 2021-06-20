@@ -13,6 +13,7 @@ class ApiClientBase {
       log: undefined
     }, options)
 
+    this.options = options
     this.baseUrl = options.baseUrl || ''
     const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
     this._fetch = retryableFetch(_fetch, {
