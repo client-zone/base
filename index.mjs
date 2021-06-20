@@ -57,6 +57,21 @@ class ApiClientBase {
     const response = await this.fetch(path, options)
     return response.text()
   }
+
+  async graphql (url, query, variables) {
+    const json = await this.fetchJson(url, {
+      method: 'POST',
+      body: JSON.stringify({ query, variables }),
+      headers: { 'content-type': 'application/json' }
+    })
+    if (json.errors) {
+      const err = new Error('graphql request failed')
+      err.responseBody = json
+      throw err
+    } else {
+      return json
+    }
+  }
 }
 
 export default ApiClientBase
