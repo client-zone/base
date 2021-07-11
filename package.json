@@ -22,8 +22,9 @@
     "retryable-fetch": "^0.2.1"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "node-fetch": "^2.6.1",
-    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup": "^2.53.1",
     "test-runner": "^0.9.6"
   },
   "standard": {
