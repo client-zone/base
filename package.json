@@ -1,9 +1,9 @@
 {
-  "name": "api-client-base",
+  "name": "@client-zone/base",
   "author": "Lloyd Brookes <75pound@gmail.com>",
   "version": "0.1.2",
   "description": "api-client-base",
-  "repository": "https://github.com/75lb/api-client-base",
+  "repository": "https://github.com/client-zone/base",
   "keywords": [],
   "license": "MIT",
   "engines": {
@@ -24,11 +24,11 @@
   "devDependencies": {
     "node-fetch": "^2.6.1",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "test-runner": "^0.9.2"
+    "test-runner": "^0.9.6"
   },
   "standard": {
     "ignore": [
-      "tmp"
+      "tmp", "dist"
     ],
     "envs": []
   }

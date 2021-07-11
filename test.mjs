@@ -1,5 +1,5 @@
 import TestRunner from 'test-runner'
-import ApiClientBase from 'api-client-base'
+import ApiClientBase from '@client-zone/base'
 import assert from 'assert'
 import fetch from 'node-fetch'
 const a = assert.strict
