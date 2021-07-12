@@ -3,7 +3,7 @@
  *
  * @module sleep-anywhere
  * @example
- * const sleep = require('sleep-anywhere')
+ * import sleep from 'sleep-anywhere'
  *
  * const result = await sleep(5000, 'later')
  * console.log('5s', result)
@@ -38,15 +38,15 @@ function createRetryableFetch (fetch, options) {
       let complete = false;
       while (!complete) {
         try {
-          options.log(`FETCH: ${url}`);
+          options.log('Request', url, options);
           const response = await fetch(url, options);
           if (response.ok) {
-            options.log(`RES: ${response.url} ${{ status: response.status, statusText: response.statusText }}`);
+            options.log('Response', response);
             resolve(response);
             complete = true;
           } else {
             const text = await response.text();
-            options.log(`RES: ${response.url}, ${{ status: response.status, statusText: response.statusText, text }}`);
+            options.log('Response', response, text);
             const err = new Error('fetch failed: ' + response.status + '\n' + text);
             err.status = response.status;
             err.responseBody = text;
@@ -56,7 +56,7 @@ function createRetryableFetch (fetch, options) {
           const remainingRetries = retryAfter.length;
           if (remainingRetries) {
             const waitPeriod = retryAfter.shift();
-            options.log(`RETRY: ${url}, ${remainingRetries} attempts remaining, waiting ${waitPeriod}ms.`);
+            options.log('Retry', url, remainingRetries, waitPeriod, `${url}, ${remainingRetries} attempts remaining, waiting ${waitPeriod}ms.`);
             await sleep(waitPeriod);
             complete = false;
           } else {

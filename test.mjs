@@ -34,7 +34,7 @@ tom.test('fetchJson fail, retry', async function () {
   const api = new ApiClientBase({
     fetch,
     baseUrl: 'https://registry.npmjs.orgBROKEN',
-    log: msg => actuals.push(msg)
+    log: (type) => actuals.push(type)
   })
   try {
     await api.fetchJson('/', { retryAfter: [200, 500], fetch })
@@ -42,11 +42,11 @@ tom.test('fetchJson fail, retry', async function () {
   } catch (err) {
     a.ok(/ENOTFOUND/.test(err.message))
     a.deepEqual(actuals, [
-      'FETCH: https://registry.npmjs.orgBROKEN/',
-      'RETRY: https://registry.npmjs.orgBROKEN/, 2 attempts remaining, waiting 200ms.',
-      'FETCH: https://registry.npmjs.orgBROKEN/',
-      'RETRY: https://registry.npmjs.orgBROKEN/, 1 attempts remaining, waiting 500ms.',
-      'FETCH: https://registry.npmjs.orgBROKEN/'
+      'Request',
+      'Retry',
+      'Request',
+      'Retry',
+      'Request'
     ])
   }
 })

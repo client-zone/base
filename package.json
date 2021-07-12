@@ -19,7 +19,7 @@
     "index.mjs"
   ],
   "dependencies": {
-    "retryable-fetch": "^0.3.0"
+    "retryable-fetch": "^0.3.1"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
