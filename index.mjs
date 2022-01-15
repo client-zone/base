@@ -1,29 +1,19 @@
-import retryableFetch from 'retryable-fetch'
-
 class ApiClientBase {
   /**
   • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
-  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
-  • [options.log] :function - Function to display log messages
   */
   constructor (options = {}) {
     options = Object.assign({
-      retryAfter: [],
-      fetch: undefined,
-      log: undefined
+      fetch: undefined
     }, options)
 
     this.options = options
     this.baseUrl = options.baseUrl || ''
-    const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
-    this._fetch = retryableFetch(_fetch, {
-      retryAfter: options.retryAfter,
-      log: options.log || function () {}
-    })
+    this._fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
   }
 
   /**
-  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients like IG which set bespoke security headers.
+  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients which set bespoke security headers.
    */
   preFetch (url, fetchOptions) {}
 

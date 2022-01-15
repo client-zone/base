@@ -1,98 +1,19 @@
-/**
- * A sleep function you can use anywhere.
- *
- * @module sleep-anywhere
- * @example
- * import sleep from 'sleep-anywhere'
- *
- * const result = await sleep(5000, 'later')
- * console.log('5s', result)
- * // 5s later
- */
-
-/**
- * Returns a promise which fulfils after `ms` milliseconds with the supplied `returnValue`.
- * @param {number} ms - How long in milliseconds to sleep for.
- * @param {*} [returnValue] - The value to return.
- * @returns {Promise}
- * @alias module:sleep-anywhere
- */
-function sleep (ms, returnValue) {
-  return new Promise(resolve => setTimeout(() => resolve(returnValue), ms))
-}
-
-/**
-≈ Returns a function wrapping the supplied fetch function, adding retry functionality.
-• fetch :function - The fetch function to wrap
-• [options]
-*/
-function createRetryableFetch (fetch, options) {
-  const defaultOptions = Object.assign({
-    retryAfter: [],
-    log: function () {}
-  }, options);
-  return function retryableFetch (url, options) {
-    options = Object.assign({}, defaultOptions, options);
-    const retryAfter = options.retryAfter.slice();
-    return new Promise(async (resolve, reject) => {
-      let complete = false;
-      while (!complete) {
-        try {
-          options.log('Request', url, options);
-          const response = await fetch(url, options);
-          if (response.ok) {
-            options.log('Response', response);
-            resolve(response);
-            complete = true;
-          } else {
-            const text = await response.text();
-            options.log('Response', response, text);
-            const err = new Error('fetch failed: ' + response.status + '\n' + text);
-            err.status = response.status;
-            err.responseBody = text;
-            throw err
-          }
-        } catch (err) {
-          const remainingRetries = retryAfter.length;
-          if (remainingRetries) {
-            const waitPeriod = retryAfter.shift();
-            options.log('Retry', url, remainingRetries, waitPeriod, `${url}, ${remainingRetries} attempts remaining, waiting ${waitPeriod}ms.`);
-            await sleep(waitPeriod);
-            complete = false;
-          } else {
-            complete = true;
-            reject(err);
-          }
-        }
-      }
-    })
-  }
-}
-
 class ApiClientBase {
   /**
   • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
-  • [options.retryAfter] :number[] - Set one or more retry time periods (ms).
-  • [options.log] :function - Function to display log messages
   */
   constructor (options = {}) {
     options = Object.assign({
-      retryAfter: [],
-      fetch: undefined,
-      log: undefined
+      fetch: undefined
     }, options);
 
     this.options = options;
     this.baseUrl = options.baseUrl || '';
-    const _fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window);
-    this._fetch = createRetryableFetch(_fetch, {
-      retryAfter: options.retryAfter,
-      log: options.log || function () {}
-    });
+    this._fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window);
   }
 
   /**
-  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients like IG which set bespoke security headers.
+  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients which set bespoke security headers.
    */
   preFetch (url, fetchOptions) {}
 
@@ -143,4 +64,4 @@ class ApiClientBase {
   }
 }
 
-export default ApiClientBase;
+export { ApiClientBase as default };
