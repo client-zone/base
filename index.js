@@ -1,7 +1,9 @@
 class ApiClientBase {
   /**
-  • [options.fetch] :object - Defaults to `window.fetch` unless an alternative is passed in.
-  */
+   * @param [options] {object}
+   * @param [options.fetch] {object} - Defaults to `window.fetch` unless an alternative is passed in.
+   * @param [options.baseUrl] {string} - The base URL for all subsequent paths passed into `fetch()`.
+   */
   constructor (options = {}) {
     options = Object.assign({
       fetch: undefined
@@ -13,13 +15,14 @@ class ApiClientBase {
   }
 
   /**
-  ≈ Called just before the fetch is made. Override to modify the fetchOptions. Used by clients which set bespoke security headers.
+   * Called just before the fetch is made. Override to modify the fetchOptions. Used by clients which set bespoke security headers.
    */
   preFetch (url, fetchOptions) {}
 
-  /** ▪︎ api.fetch ⇐ :Response
-  The core fetch method. Throws on error, 400 or 500.
-  */
+  /**
+   * The core fetch method. Throws on error, 400 or 500.
+   * @returns {Response}
+   */
   async fetch (path, options = {}) {
     const fetchOptions = Object.assign({}, {
       headers: {}
