@@ -9,14 +9,15 @@
   "engines": {
     "node": ">=12.17"
   },
-  "exports": "./index.mjs",
+  "exports": "./index.js",
+  "type": "module",
   "scripts": {
     "test": "npm run dist && npm run test:ci",
-    "test:ci": "test-runner test.mjs",
+    "test:ci": "test-runner test.js",
     "dist": "rollup -c"
   },
   "files": [
-    "index.mjs",
+    "index.js",
     "dist"
   ],
   "devDependencies": {
