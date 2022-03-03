@@ -1,7 +1,7 @@
 {
   "name": "@client-zone/base",
   "author": "Lloyd Brookes <75pound@gmail.com>",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "api-client-base",
   "repository": "https://github.com/client-zone/base",
   "keywords": [],
