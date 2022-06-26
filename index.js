@@ -11,7 +11,7 @@ class ApiClientBase {
 
     this.options = options
     this.baseUrl = options.baseUrl || ''
-    this._fetch = typeof fetch === 'undefined' ? options.fetch : window.fetch.bind(window)
+    this._fetch = typeof fetch === 'undefined' ? options.fetch : fetch
   }
 
   /**

@@ -23,7 +23,7 @@ tom.test('fetchJson fail', async function () {
     await api.fetchJson('/')
     throw new Error('should not reach here')
   } catch (err) {
-    a.ok(/ENOTFOUND/.test(err.message))
+    a.ok(/ENOTFOUND/.test(err.message) || /ENOTFOUND/.test(err.cause.message))
   }
 })
 
