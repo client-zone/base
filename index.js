@@ -35,8 +35,11 @@ class ApiClientBase {
       return response
     } else {
       const err = new Error(`${response.status}: ${response.statusText}`)
-      err.response = {
+      err.request = {
         url,
+        fetchOptions
+      }
+      err.response = {
         status: response.status,
         statusText: response.statusText,
         body: await response.text(),
