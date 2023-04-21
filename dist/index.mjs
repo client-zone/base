@@ -1,4 +1,6 @@
 class ApiClientBase {
+  #fetch
+
   /**
    * @param [options] {object}
    * @param [options.fetch] {object} - Defaults to `window.fetch` unless an alternative is passed in.
@@ -11,7 +13,7 @@ class ApiClientBase {
 
     this.options = options;
     this.baseUrl = options.baseUrl || '';
-    this._fetch = typeof fetch === 'undefined' ? options.fetch : fetch;
+    this.#fetch = typeof fetch === 'undefined' ? options.fetch : fetch;
   }
 
   /**
@@ -30,13 +32,16 @@ class ApiClientBase {
 
     const url = `${this.baseUrl}${path}`;
     this.preFetch(url, fetchOptions);
-    const response = await this._fetch(url, fetchOptions);
+    const response = await this.#fetch(url, fetchOptions);
     if (response.ok) {
       return response
     } else {
       const err = new Error(`${response.status}: ${response.statusText}`);
-      err.response = {
+      err.request = {
         url,
+        fetchOptions
+      };
+      err.response = {
         status: response.status,
         statusText: response.statusText,
         body: await response.text(),

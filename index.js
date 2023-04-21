@@ -1,4 +1,6 @@
 class ApiClientBase {
+  #fetch
+
   /**
    * @param [options] {object}
    * @param [options.fetch] {object} - Defaults to `window.fetch` unless an alternative is passed in.
@@ -11,7 +13,7 @@ class ApiClientBase {
 
     this.options = options
     this.baseUrl = options.baseUrl || ''
-    this._fetch = typeof fetch === 'undefined' ? options.fetch : fetch
+    this.#fetch = typeof fetch === 'undefined' ? options.fetch : fetch
   }
 
   /**
@@ -20,7 +22,8 @@ class ApiClientBase {
   preFetch (url, fetchOptions) {}
 
   /**
-   * The core fetch method. Throws on error, 400 or 500.
+   * @param [options] {object}
+   * @param [options.skipPreFetch] {boolean}
    * @returns {Response}
    */
   async fetch (path, options = {}) {
@@ -29,8 +32,10 @@ class ApiClientBase {
     }, options)
 
     const url = `${this.baseUrl}${path}`
-    this.preFetch(url, fetchOptions)
-    const response = await this._fetch(url, fetchOptions)
+    if (!options.skipPreFetch) {
+      this.preFetch(url, fetchOptions)
+    }
+    const response = await this.#fetch(url, fetchOptions)
     if (response.ok) {
       return response
     } else {
