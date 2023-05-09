@@ -11,6 +11,6 @@ A base class defining common logic used by all `@client-zone` API clients.
 
 * * *
 
-&copy; 2021-22 [Lloyd Brookes](https://github.com/75lb) \<75pound@gmail.com\>.
+&copy; 2021-23 [Lloyd Brookes](https://github.com/75lb) \<75pound@gmail.com\>.
 
 Tested by [test-runner](https://github.com/test-runner-js/test-runner).

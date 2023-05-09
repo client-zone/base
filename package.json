@@ -14,15 +14,13 @@
   "scripts": {
     "test": "npm run dist && npm run test:ci",
     "test:ci": "test-runner test.js",
-    "dist": "rollup -c"
+    "dist": "interstellar build build.config.js"
   },
   "files": [
     "index.js",
     "dist"
   ],
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "rollup": "^3.20.6",
     "test-runner": "^0.10.1"
   },
   "standard": {
