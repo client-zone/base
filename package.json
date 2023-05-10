@@ -12,9 +12,7 @@
   "exports": "./index.js",
   "type": "module",
   "scripts": {
-    "test": "npm run dist && npm run test:ci",
-    "test:ci": "test-runner test.js",
-    "dist": "interstellar build build.config.js"
+    "test": "test-runner test.js"
   },
   "files": [
     "index.js",
