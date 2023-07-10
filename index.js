@@ -1,19 +1,11 @@
 class ApiClientBase {
-  #fetch
-
   /**
    * @param [options] {object}
-   * @param [options.fetch] {object} - Defaults to `window.fetch` unless an alternative is passed in.
    * @param [options.baseUrl] {string} - The base URL for all subsequent paths passed into `fetch()`.
    */
   constructor (options = {}) {
-    options = Object.assign({
-      fetch: undefined
-    }, options)
-
     this.options = options
     this.baseUrl = options.baseUrl || ''
-    this.#fetch = typeof fetch === 'undefined' ? options.fetch : fetch
   }
 
   /**
@@ -35,7 +27,7 @@ class ApiClientBase {
     if (!options.skipPreFetch) {
       this.preFetch(url, fetchOptions)
     }
-    const response = await this.#fetch(url, fetchOptions)
+    const response = await fetch(url, fetchOptions)
     if (response.ok) {
       return response
     } else {
