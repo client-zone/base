@@ -1,11 +1,20 @@
+import a from 'node:assert/strict'
+
 class ApiClientBase {
   /**
    * @param [options] {object}
    * @param [options.baseUrl] {string} - The base URL for all subsequent paths passed into `fetch()`.
    */
   constructor (options = {}) {
+    const validOptions = ['baseUrl', 'fetchOptions']
+    a.equal(
+      Object.getOwnPropertyNames(options).every(name => validOptions.includes(name)),
+      true,
+      'Valid options are: ' + validOptions.join(', ')
+    )
     this.options = options
     this.baseUrl = options.baseUrl || ''
+    this.fetchOptions = options.fetchOptions || {}
   }
 
   /**
@@ -16,12 +25,11 @@ class ApiClientBase {
   /**
    * @param [options] {object}
    * @param [options.skipPreFetch] {boolean}
+   * @param [options.fetchOptions] {object} - The default fetch options for each request. E.g. for passing in a custom dispatcher.
    * @returns {Response}
    */
   async fetch (path, options = {}) {
-    const fetchOptions = Object.assign({}, {
-      headers: {}
-    }, options)
+    const fetchOptions = Object.assign({}, this.fetchOptions, options)
 
     const url = `${this.baseUrl}${path}`
     if (!options.skipPreFetch) {
