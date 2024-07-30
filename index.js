@@ -31,19 +31,28 @@ class ApiClientBase {
   async fetch (path, options = {}) {
     const fetchOptions = Object.assign({}, this.fetchOptions, options)
 
+    // TODO: rewrite to use URL instances? They have built-in methods like searchParams.add(). Handle URL instances as input as an alternative to `path`? See ibkr-cpapi for a use case study.
+    // TODO: Add error.cause
+    // TODO: Add retrying
     const url = `${this.baseUrl}${path}`
     if (!options.skipPreFetch) {
       this.preFetch(url, fetchOptions)
     }
-    const response = await fetch(url, fetchOptions)
+    try {
+      const response = await fetch(url, fetchOptions)
+    } catch (err) {
+      const baseError = new Error(`Failed to fetch: ${url}`)
+      baseError.cause = err
+      baseError.request = { url, fetchOptions }
+      baseError.response = {}
+      throw baseError
+    }
+
     if (response.ok) {
       return response
     } else {
       const err = new Error(`${response.status}: ${response.statusText}`)
-      err.request = {
-        url,
-        fetchOptions
-      }
+      err.request = { url, fetchOptions }
       err.response = {
         status: response.status,
         statusText: response.statusText,
