@@ -3,7 +3,10 @@
   "author": "Lloyd Brookes <75pound@gmail.com>",
   "version": "0.7.0",
   "description": "api-client-base",
-  "repository": "https://github.com/client-zone/base",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/client-zone/base.git"
+  },
   "keywords": [],
   "license": "MIT",
   "engines": {

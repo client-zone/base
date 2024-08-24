@@ -7,7 +7,7 @@
 
 # @client-zone/base
 
-An isomorphic base class defining common logic used by all `@client-zone` API clients.
+An isomorphic base class defining common logic used by all `@client-zone` API clients. Requires Node.js v18 and above for built-in fetch.
 
 * * *
 
