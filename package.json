@@ -18,14 +18,14 @@
     "index.js",
     "dist"
   ],
-  "devDependencies": {
-    "test-runner": "^0.10.1"
-  },
   "standard": {
     "ignore": [
       "tmp",
       "dist"
     ],
     "envs": []
+  },
+  "devDependencies": {
+    "test-runner": "^0.12.0-2"
   }
 }
