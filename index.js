@@ -8,7 +8,6 @@ class ApiClientBase {
     if (!Object.getOwnPropertyNames(options).every(name => validOptions.includes(name))) {
       throw new Error('Valid options are: ' + validOptions.join(', '))
     }
-    this.options = options
     this.baseUrl = options.baseUrl || ''
     this.fetchOptions = options.fetchOptions || {}
     this.logger = options.logger || {
@@ -38,10 +37,10 @@ class ApiClientBase {
       this.preFetch(url, fetchOptions)
     }
 
-    this.logger.log(`Fetching: ${url}`)
     const now = Date.now()
     let response
     try {
+      this.logger.log('Fetching', url, fetchOptions)
       response = await fetch(url, fetchOptions)
     } catch (err) {
       const baseError = new Error(`Failed to fetch: ${url}`)

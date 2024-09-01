@@ -9,6 +9,29 @@
 
 An isomorphic base class defining common logic used by all `@client-zone` API clients. Requires Node.js v18 and above for built-in fetch.
 
+## Exception structure
+
+```
+Error: 404: Not Found
+    at NpmDownloads.fetch (file:///Users/lloyd/Documents/client-zone/npm/node_modules/@client-zone/base/index.js:57:25)
+    ...etc
+  request: {
+    url: 'https://api.npmjs.org/downloads/point/last-month/@akdfdsaf/jdshfauybsfuyabdflbasdfdksahjsdhksdf',
+    fetchOptions: {}
+  },
+  response: {
+    status: 404,
+    statusText: 'Not Found',
+    body: '{"error":"package @akdfdsaf/jdshfauybsfuyabdflbasdfdksahjsdhksdf not found"}',
+    headers: Headers {
+      date: 'Sun, 01 Sep 2024 18:29:37 GMT',
+      'content-type': 'application/json; charset=utf-8',
+      ...etc
+    }
+  }
+}
+```
+
 * * *
 
 &copy; 2021-24 [Lloyd Brookes](https://github.com/75lb) \<75pound@gmail.com\>.
