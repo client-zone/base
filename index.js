@@ -2,17 +2,30 @@ class ApiClientBase {
   /**
    * @param [options] {object}
    * @param [options.baseUrl] {string} - The base URL for all subsequent paths passed into `fetch()`.
+   * @param [options.fetchOptions] {object}
+   * @param [options.console] {object}
    */
   constructor (options = {}) {
-    const validOptions = ['baseUrl', 'fetchOptions', 'logger']
-    if (!Object.getOwnPropertyNames(options).every(name => validOptions.includes(name))) {
-      throw new Error('Valid options are: ' + validOptions.join(', '))
-    }
     this.baseUrl = options.baseUrl || ''
     this.fetchOptions = options.fetchOptions || {}
-    this.logger = options.logger || {
-      log: function () {}
+    this.console = options.console || {}
+    this.console.log ||= function () {}
+    this.console.info ||= function () {}
+    this.console.warn ||= function () {}
+    this.console.error ||= function () {}
+    this.console.table ||= function () {}
+  }
+
+  async #createNotOKError (url, fetchOptions, response) {
+    const err = new Error(`${response.status}: ${response.statusText}`)
+    err.request = { url, fetchOptions }
+    err.response = {
+      status: response.status,
+      statusText: response.statusText,
+      body: await response.text(),
+      headers: response.headers
     }
+    return err
   }
 
   /**
@@ -31,7 +44,6 @@ class ApiClientBase {
 
     // TODO: rewrite to use URL instances? They have built-in methods like searchParams.add(). Handle URL instances as input as an alternative to `path`? See ibkr-cpapi for a use case study.
     // TODO: Add retrying
-    // TODO: Is there still a case for ClientBase now fetch is isomorphic? Still needed for standardised exception handling, timeout control etc?
     const url = `${this.baseUrl}${path}`
     if (!options.skipPreFetch) {
       this.preFetch(url, fetchOptions)
@@ -40,7 +52,8 @@ class ApiClientBase {
     const now = Date.now()
     let response
     try {
-      this.logger.log('Fetching', url, fetchOptions)
+      this.console.log('Fetching', url, fetchOptions)
+      /* Potential fetch exceptions: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#exceptions */
       response = await fetch(url, fetchOptions)
     } catch (err) {
       const baseError = new Error(`Failed to fetch: ${url}`)
@@ -49,30 +62,28 @@ class ApiClientBase {
       throw baseError
     }
 
-    this.logger.log(`Fetched: ${url}, Response: ${response.status}, Duration: ${Date.now() - now}ms`)
-    if (response.ok) {
-      return response
-    } else {
-      const baseError = new Error(`${response.status}: ${response.statusText}`)
-      baseError.request = { url, fetchOptions }
-      baseError.response = {
-        status: response.status,
-        statusText: response.statusText,
-        body: await response.text(),
-        headers: response.headers
-      }
-      throw baseError
-    }
+    this.console.log(`Fetched: ${url}, Response: ${response.status}, Duration: ${Date.now() - now}ms`)
+    return response
   }
 
   async fetchJson (path, options) {
     const response = await this.fetch(path, options)
-    return response.json()
+    if (response.ok) {
+      return response.json()
+    } else {
+      const err = await this.#createNotOKError(path, options, response)
+      throw err
+    }
   }
 
   async fetchText (path, options) {
     const response = await this.fetch(path, options)
-    return response.text()
+    if (response.ok) {
+      return response.text()
+    } else {
+      const err = await this.#createNotOKError(path, options, response)
+      throw err
+    }
   }
 
   async graphql (url, query, variables) {
