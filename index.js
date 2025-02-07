@@ -52,7 +52,7 @@ class ApiClientBase {
     const now = Date.now()
     let response
     try {
-      this.console.log('Fetching', url, fetchOptions)
+      this.console.info('Fetching', url, fetchOptions)
       /* Potential fetch exceptions: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#exceptions */
       response = await fetch(url, fetchOptions)
     } catch (err) {
@@ -62,7 +62,7 @@ class ApiClientBase {
       throw baseError
     }
 
-    this.console.log(`Fetched: ${url}, Response: ${response.status}, Duration: ${Date.now() - now}ms`)
+    this.console.info(`Fetched: ${url}, Response: ${response.status}, Duration: ${Date.now() - now}ms`)
     return response
   }
 
