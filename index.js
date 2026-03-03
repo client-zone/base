@@ -1,3 +1,5 @@
+import retryableFetch from 'retryable-fetch'
+
 class ApiClientBase {
   /**
    * @param [options] {object}
@@ -8,6 +10,8 @@ class ApiClientBase {
   constructor (options = {}) {
     this.baseUrl = options.baseUrl || ''
     this.fetchOptions = options.fetchOptions || {}
+    this.retryAfter = options.retryAfter || []
+    this.retryCriteria = options.retryCriteria
     this.console = options.console || {}
     this.console.log ||= function () {}
     this.console.info ||= function () {}
@@ -17,7 +21,7 @@ class ApiClientBase {
   }
 
   async #createNotOKError (url, fetchOptions, response) {
-    const err = new Error(`${response.status}: ${response.statusText}`)
+    const err = new Error(`[${url}] ${response.status}: ${response.statusText}`)
     err.request = { url, fetchOptions }
     err.response = {
       status: response.status,
@@ -43,7 +47,6 @@ class ApiClientBase {
     const fetchOptions = Object.assign({}, this.fetchOptions, options)
 
     // TODO: rewrite to use URL instances? They have built-in methods like searchParams.add(). Handle URL instances as input as an alternative to `path`? See ibkr-cpapi for a use case study.
-    // TODO: Add retrying
     const url = `${this.baseUrl}${path}`
     if (!options.skipPreFetch) {
       this.preFetch(url, fetchOptions)
@@ -53,13 +56,19 @@ class ApiClientBase {
     let response
     try {
       this.console.info('Fetching', url, fetchOptions)
+
+      const reFetch = retryableFetch({
+        log: this.console.log,
+        retryAfter: this.retryAfter,
+        retryCriteria: this.retryCriteria
+      })
+
       /* Potential fetch exceptions: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#exceptions */
-      response = await fetch(url, fetchOptions)
-    } catch (err) {
-      const baseError = new Error(`Failed to fetch: ${url}`)
-      baseError.cause = err
-      baseError.request = { url, fetchOptions }
-      throw baseError
+      response = await reFetch(url, fetchOptions)
+    } catch (cause) {
+      const err = await this.#createNotOKError(url, fetchOptions, cause.cause.response)
+      err.cause = cause
+      throw err
     }
 
     this.console.info(`Fetched: ${url}, Response: ${response.status}, Duration: ${Date.now() - now}ms`)
